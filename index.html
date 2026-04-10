@@ -240,38 +240,38 @@ body {
 
 /* ======= SHARE CARD (canvas) ======= */
 .share-card-wrap {
-  position:relative; z-index:2; width:100%; margin-top:16px;
-  border-radius:16px; overflow:hidden;
+  position:relative; z-index:2; width:100%; margin-top:12px;
+  border-radius:20px; overflow:hidden;
   border:3px solid #333;
   box-shadow:5px 5px 0 rgba(0,0,0,0.12);
 }
 #share-card {
-  width:100%; background:#FFF8E7;
-  padding:24px 20px; text-align:center;
+  width:100%; background:linear-gradient(180deg,#FFF8E7 0%,#FFEDBE 100%);
+  padding:16px 16px 12px; text-align:center;
 }
-.sc-header { font-size:11px; color:#B0A080; letter-spacing:2px; font-weight:700; }
+.sc-header { font-size:10px; color:#C0B080; letter-spacing:2px; font-weight:700; margin-bottom:4px; }
 .sc-match {
   display:inline-block; background:#FFD93D; border:2px solid #333;
-  border-radius:8px; padding:3px 12px; font-size:13px; font-weight:700; color:#333;
-  margin:8px 0;
+  border-radius:20px; padding:2px 14px; font-size:14px; font-weight:800; color:#333;
+  margin:4px 0 6px;
 }
-.sc-illust { width:140px; height:140px; object-fit:contain; margin:8px auto; display:block;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1)); }
-.sc-name { font-size:28px; font-weight:900; margin:6px 0; }
-.sc-tagline { font-size:13px; color:#888; margin-bottom:10px; }
-.sc-traits { display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.sc-illust { width:200px; height:200px; object-fit:contain; margin:4px auto; display:block;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.12)); }
+.sc-name { font-size:32px; font-weight:900; margin:4px 0 2px; }
+.sc-tagline { font-size:14px; color:#888; margin-bottom:8px; }
+.sc-traits { display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
 .sc-traits span {
-  background:#FFF8E7; border:1.5px solid #EEE; border-radius:8px;
-  padding:3px 8px; font-size:11px; color:#888;
+  background:rgba(255,255,255,0.7); border:1.5px solid #E8E0D0; border-radius:20px;
+  padding:3px 10px; font-size:12px; color:#777;
 }
 .sc-desc {
-  font-size:12px; color:#666; line-height:1.7; text-align:left;
-  background:#FFFDF5; border:2px solid #EEE; border-radius:12px;
-  padding:12px; margin-bottom:14px;
+  font-size:13px; color:#555; line-height:1.8; text-align:left;
+  background:rgba(255,255,255,0.6); border:2px solid #EDE6D6; border-radius:14px;
+  padding:12px 14px; margin-bottom:10px;
 }
 .sc-footer {
   display:flex; justify-content:space-between; align-items:center;
-  font-size:10px; color:#BBB;
+  font-size:10px; color:#CCC; padding-top:2px;
 }
 .sc-qr-placeholder {
   width:50px; height:50px; background:#F0E6D3; border-radius:8px;
@@ -710,82 +710,102 @@ function tryCanvasShare() {
     img.onload = function() {
       try {
         const dpr = 2;
-        const W = 750, H = 1334;
+        const W = 750;
+        // We'll calculate H dynamically after drawing text
         const cvs = document.createElement('canvas');
-        cvs.width = W * dpr; cvs.height = H * dpr;
         const ctx = cvs.getContext('2d');
+
+        // Pre-measure description text height
+        cvs.width = W * dpr; cvs.height = 2000 * dpr;
+        ctx.scale(dpr, dpr);
+        ctx.font = '16px sans-serif';
+        const descLines = getWrappedLines(ctx, desc, W - 180);
+        const descH = descLines.length * 28 + 30;
+        const H = 680 + descH; // compact total height
+
+        // Reset canvas to final size
+        cvs.width = W * dpr; cvs.height = H * dpr;
         ctx.scale(dpr, dpr);
 
         // BG gradient
         const grad = ctx.createLinearGradient(0,0,0,H);
-        grad.addColorStop(0,'#FFF8E7'); grad.addColorStop(1,'#FFE4B5');
+        grad.addColorStop(0,'#FFF8E7'); grad.addColorStop(1,'#FFEDBE');
         ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
 
-        // Decorative rays
-        ctx.save(); ctx.translate(W/2, 260); ctx.globalAlpha = 0.12;
-        for (let i = 0; i < 24; i++) {
+        // Decorative rays behind illustration
+        ctx.save(); ctx.translate(W/2, 200); ctx.globalAlpha = 0.10;
+        for (let i = 0; i < 20; i++) {
           ctx.beginPath(); ctx.moveTo(0,0);
-          const a1 = (i/24)*Math.PI*2, a2 = ((i+0.4)/24)*Math.PI*2;
-          ctx.lineTo(Math.cos(a1)*280, Math.sin(a1)*280);
-          ctx.lineTo(Math.cos(a2)*280, Math.sin(a2)*280);
+          const a1 = (i/20)*Math.PI*2, a2 = ((i+0.4)/20)*Math.PI*2;
+          ctx.lineTo(Math.cos(a1)*200, Math.sin(a1)*200);
+          ctx.lineTo(Math.cos(a2)*200, Math.sin(a2)*200);
           ctx.closePath(); ctx.fillStyle='#FFD93D'; ctx.fill();
         }
         ctx.restore();
 
-        // BBTI badge
+        // BBTI badge (smaller)
         ctx.fillStyle = '#333';
-        rr(ctx, W/2-55, 40, 110, 34, 8); ctx.fill();
-        ctx.fillStyle = '#FFD93D'; ctx.font = 'bold 16px sans-serif';
-        ctx.textAlign = 'center'; ctx.fillText('BBTI', W/2, 63);
+        rr(ctx, W/2-40, 20, 80, 26, 6); ctx.fill();
+        ctx.fillStyle = '#FFD93D'; ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center'; ctx.fillText('BBTI', W/2, 38);
 
         // Match badge
         ctx.fillStyle = '#FFD93D'; ctx.strokeStyle = '#333'; ctx.lineWidth = 2.5;
-        rr(ctx, W/2-65, 88, 130, 36, 10); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#333'; ctx.font = 'bold 17px sans-serif';
-        ctx.fillText(match, W/2, 112);
+        rr(ctx, W/2-55, 54, 110, 30, 15); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#333'; ctx.font = 'bold 15px sans-serif';
+        ctx.fillText(match, W/2, 74);
 
-        // Illustration
-        const iS = 240;
-        ctx.drawImage(img, W/2-iS/2, 140, iS, iS);
+        // BIG illustration
+        const iS = 300;
+        ctx.drawImage(img, W/2-iS/2, 92, iS, iS);
 
-        // White card
-        ctx.fillStyle = '#FFFDF5'; ctx.strokeStyle = '#E8E0D0'; ctx.lineWidth = 3;
-        rr(ctx, 50, 410, W-100, H-480, 24); ctx.fill(); ctx.stroke();
+        // White card (tight)
+        const cardY = 400;
+        const cardH = H - cardY - 40;
+        ctx.fillStyle = 'rgba(255,253,245,0.9)'; ctx.strokeStyle = '#E8E0D0'; ctx.lineWidth = 2.5;
+        rr(ctx, 40, cardY, W-80, cardH, 20); ctx.fill(); ctx.stroke();
 
+        let y = cardY + 28;
         // "你的球友类型是"
-        ctx.fillStyle = '#B0A080'; ctx.font = '15px sans-serif';
-        ctx.textAlign = 'center'; ctx.fillText('你的球友类型是', W/2, 448);
+        ctx.fillStyle = '#B0A080'; ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center'; ctx.fillText('你的球友类型是', W/2, y);
 
-        // Name
-        ctx.fillStyle = color; ctx.font = 'bold 42px sans-serif';
-        ctx.fillText(name, W/2, 500);
+        // Name (bigger)
+        y += 42;
+        ctx.fillStyle = color; ctx.font = 'bold 38px sans-serif';
+        ctx.fillText(name, W/2, y);
 
-        // Tagline pill
-        ctx.fillStyle='#FFF'; ctx.strokeStyle='#E0D8C8'; ctx.lineWidth=1.5;
-        const tw = ctx.measureText(tagline).width + 40;
-        rr(ctx, W/2-tw/2, 516, tw, 34, 17); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#999'; ctx.font='14px sans-serif'; ctx.fillText(tagline, W/2, 538);
+        // Tagline
+        y += 32;
+        ctx.font = '14px sans-serif';
+        ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.strokeStyle='#E0D8C8'; ctx.lineWidth=1.5;
+        const tw = ctx.measureText(tagline).width + 36;
+        rr(ctx, W/2-tw/2, y-14, tw, 28, 14); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#888'; ctx.fillText(tagline, W/2, y+4);
 
         // Traits
-        let tx = W/2 - (traits.length * 45);
+        y += 30;
         ctx.font = '13px sans-serif';
+        const totalTraitW = traits.reduce((s,t) => s + ctx.measureText(t).width + 24, 0) + (traits.length-1)*8;
+        let tx = W/2 - totalTraitW/2;
         traits.forEach(t => {
-          const m = ctx.measureText(t).width + 20;
-          ctx.fillStyle='#FFF8E7'; rr(ctx, tx, 564, m, 28, 8); ctx.fill();
-          ctx.strokeStyle='#EEE'; ctx.lineWidth=1; ctx.stroke();
-          ctx.fillStyle='#999'; ctx.textAlign='center';
-          ctx.fillText(t, tx+m/2, 583); tx += m + 10;
+          const m = ctx.measureText(t).width + 24;
+          ctx.fillStyle='rgba(255,248,231,0.8)'; rr(ctx, tx, y-10, m, 24, 12); ctx.fill();
+          ctx.strokeStyle='#E8E0D0'; ctx.lineWidth=1; ctx.stroke();
+          ctx.fillStyle='#888'; ctx.textAlign='center';
+          ctx.fillText(t, tx+m/2, y+6); tx += m + 8;
         });
 
         // Desc box
-        ctx.fillStyle='#FFF8E7'; rr(ctx, 80, 610, W-160, H-700, 14); ctx.fill();
-        ctx.fillStyle='#666'; ctx.font='15px sans-serif'; ctx.textAlign='left';
-        wt(ctx, desc, 100, 644, W-200, 26);
+        y += 28;
+        ctx.fillStyle='rgba(255,248,231,0.5)'; rr(ctx, 65, y, W-130, descH, 12); ctx.fill();
+        ctx.fillStyle='#555'; ctx.font='16px sans-serif'; ctx.textAlign='left';
+        let dy = y + 24;
+        descLines.forEach(line => { ctx.fillText(line, 85, dy); dy += 28; });
 
         // Footer
-        ctx.textAlign='center'; ctx.fillStyle='#CCC'; ctx.font='12px sans-serif';
-        ctx.fillText('表情商店搜索「小鸡毛」🐥', W/2-80, H-38);
-        ctx.fillText('来测测你是哪种球友 🏸', W/2+100, H-38);
+        ctx.textAlign='center'; ctx.fillStyle='#CCC'; ctx.font='11px sans-serif';
+        ctx.fillText('表情商店搜索「小鸡毛」· 来测测你是哪种球友 🏸', W/2, H-14);
 
         // Export
         const dataUrl = cvs.toDataURL('image/png');
@@ -818,6 +838,7 @@ function showImgOverlay(url) {
 
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
 function wt(c,t,x,y,mw,lh){let l='';for(let i=0;i<t.length;i++){const s=l+t[i];if(c.measureText(s).width>mw&&l){c.fillText(l,x,y);l=t[i];y+=lh;}else l=s;}if(l)c.fillText(l,x,y);}
+function getWrappedLines(ctx,text,maxW){const lines=[];let line='';for(let i=0;i<text.length;i++){const s=line+text[i];if(ctx.measureText(s).width>maxW&&line){lines.push(line);line=text[i];}else line=s;}if(line)lines.push(line);return lines;}
 
 
 function shareText() {
