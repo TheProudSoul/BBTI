@@ -302,7 +302,7 @@ body {
 
 <!-- LOADING -->
 <div class="loading" id="loading">
-  <img class="loading-chick" src="img/hero.png" alt="">
+  <img class="loading-chick" src="img/hero.webp" alt="">
   <p>正在分析你的球场人格...</p>
 </div>
 
@@ -312,7 +312,7 @@ body {
   <div class="home-title">测一测你在球场上<br>是什么鸟 🏸</div>
   <div class="home-sub">羽球鸟类型测试</div>
   <div class="home-hero">
-    <img src="img/hero.png" alt="小鸡毛">
+    <img src="img/hero.webp" alt="小鸡毛">
   </div>
   <div class="home-card">
     <div class="hc-title">15 道题 · 约 2 分钟</div>
@@ -495,56 +495,56 @@ const questions = [
 
 const results = {
   COACH: {
-    img:"img/coach.png", name:"场上教练", color:"#FF6B35",
+    img:"img/coach.webp", name:"场上教练", color:"#FF6B35",
     tagline:"别人打球你指挥，你的嘴比拍子忙",
     traits:["👁️ 观察力MAX","📋 战术大师","🗣️ 移动解说台"],
     description:"你是球场上的移动解说台。每一个球你都能分析出三个改进点，搭档的反手、对面的步法、裁判的判罚——没有什么逃得过你的眼睛。虽然自己不一定打得最好，但论战术理解，你绝对是队里的「军师」。球友们对你的态度：又爱又怕。",
     similar:["MACHINE","GHOST"]
   },
   MACHINE: {
-    img:"img/machine.png", name:"高远球永动机", color:"#2196F3",
+    img:"img/machine.webp", name:"高远球永动机", color:"#2196F3",
     tagline:"后场就是你的领地，不累不回家",
     traits:["⚡ 体力无限","🔥 暴力输出","🏃 永远在跑"],
     description:"你的体力条是无限的，一打就停不下来。高远球一百个起步，杀球从不含糊。别人打两局就瘫了，你还在问「再来一局？」你就是球场上的永动机，对手最怕遇到的那种——因为跟你打球，不是技术比拼，是体能消耗战。",
     similar:["COACH","GEAR"]
   },
   GHOST: {
-    img:"img/ghost.png", name:"网前鬼影", color:"#9C27B0",
+    img:"img/ghost.webp", name:"网前鬼影", color:"#9C27B0",
     tagline:"搓球小妖精，对手一眨眼你就在网前了",
     traits:["🎭 假动作大师","🕸️ 网前制霸","🧠 心理战专家"],
     description:"你的风格是四个字：阴险狡诈（褒义）。搓球、勾对角、假动作、放网——你在网前的操作让对手怀疑人生。你可能不是力量最大的，但你一定是最让人头疼的。球友们的评价：跟你打球像在猜谜。",
     similar:["COACH","FOUL"]
   },
   DEAD: {
-    img:"img/dead.png", name:"接杀死者", color:"#607D8B",
+    img:"img/dead.webp", name:"接杀死者", color:"#607D8B",
     tagline:"对面一起跳你就闭眼，活着就是胜利",
     traits:["🛡️ 保命第一","😌 心态超稳","🎉 偶尔超神"],
     description:"杀球？能不能别冲我来？你在球场上最常做的动作不是挥拍，是闪躲。但你有个别人都没有的优点——超强的心理承受力。被杀十个你还能笑着说「再来」，偶尔接起一个杀球，全场都为你欢呼。",
     similar:["ZEN","PIGEON"]
   },
   FOUL: {
-    img:"img/foul.png", name:"发球违例户", color:"#FF9800",
+    img:"img/foul.webp", name:"发球违例户", color:"#FF9800",
     tagline:"过腰警告⚠️ 你的发球是一门玄学",
     traits:["🎲 薛定谔发球","🤷 规则？什么规则","😏 永远觉得自己对"],
     description:"你和规则之间的关系比较微妙。发球到底过没过腰？踩没踩线？这些问题在你身上永远是薛定谔的状态。但你从来不觉得自己违规——那些边界球，在你的世界里统统都是好球。朋友们已经放弃和你争论了。",
     similar:["GHOST","ZEN"]
   },
   ZEN: {
-    img:"img/zen.png", name:"佛系球友", color:"#4CAF50",
+    img:"img/zen.webp", name:"佛系球友", color:"#4CAF50",
     tagline:"打球是借口，奶茶烧烤才是本体",
     traits:["☕ 奶茶先行","😊 快乐第一","🍖 球后觅食"],
     description:"对你来说，球场只是一个社交场所。比分？不记得。技术？随缘。重要的是——打完球去吃什么？你是球友群的快乐源泉，因为你在的局，永远有吃有喝有笑声。输赢不重要，快乐最重要。",
     similar:["PIGEON","DEAD"]
   },
   GEAR: {
-    img:"img/gear.png", name:"装备党", color:"#E91E63",
+    img:"img/gear.webp", name:"装备党", color:"#E91E63",
     tagline:"拍子比技术贵十倍，手胶比谁都讲究",
     traits:["💰 氪金战士","📦 快递不断","🔍 参数狂人"],
     description:"你的装备可以武装一个羽毛球队。球拍三把起步，球鞋按颜色配球服，手胶每次打完都要换新的。你可能不是打得最好的，但你一定是最好看的。球友问你推荐拍子，你能讲一小时。",
     similar:["MACHINE","COACH"]
   },
   PIGEON: {
-    img:"img/pigeon.png", name:"鸽王", color:"#795548",
+    img:"img/pigeon.webp", name:"鸽王", color:"#795548",
     tagline:"群里永远+1，约了三次到了零次",
     traits:["📱 线上活跃","🛏️ 线下消失","🪽 自由的灵魂"],
     description:"你是球友群里最活跃的人——在线上。每次约球你都秒回「我去！」，然后在出发前一小时开始编借口。你不是不爱打球，你只是…太爱床了。球友们给你的评价：如果鸽子能打球，你早就是世界冠军了。",
@@ -581,7 +581,7 @@ function renderQ() {
   document.getElementById('q-num').textContent = `题目 ${currentQ+1}`;
   document.getElementById('q-badge').textContent = `Q${currentQ+1}`;
   document.getElementById('q-text').textContent = q.q;
-  document.getElementById('q-illust').src = `img/${q.illust}.png`;
+  document.getElementById('q-illust').src = `img/${q.illust}.webp`;
   document.getElementById('progress').style.width = `${(currentQ/questions.length)*100}%`;
 
   const c = document.getElementById('options-container');
@@ -677,7 +677,7 @@ function saveShareImage() {
     }).then(canvas => {
       // Try to download
       const link = document.createElement('a');
-      link.download = 'BBTI_我的球场类型.png';
+      link.download = 'BBTI_我的球场类型.webp';
       link.href = canvas.toDataURL('image/png');
       link.click();
       toast('图片已保存 📸');
