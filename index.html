@@ -250,9 +250,20 @@ body {
   padding:24px 20px; text-align:center;
 }
 .sc-header { font-size:11px; color:#B0A080; letter-spacing:2px; font-weight:700; }
-.sc-illust { width:120px; height:120px; object-fit:contain; margin:12px auto; display:block; }
-.sc-name { font-size:26px; font-weight:900; margin:4px 0; }
-.sc-tagline { font-size:12px; color:#888; margin-bottom:12px; }
+.sc-match {
+  display:inline-block; background:#FFD93D; border:2px solid #333;
+  border-radius:8px; padding:3px 12px; font-size:13px; font-weight:700; color:#333;
+  margin:8px 0;
+}
+.sc-illust { width:140px; height:140px; object-fit:contain; margin:8px auto; display:block;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1)); }
+.sc-name { font-size:28px; font-weight:900; margin:6px 0; }
+.sc-tagline { font-size:13px; color:#888; margin-bottom:10px; }
+.sc-traits { display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.sc-traits span {
+  background:#FFF8E7; border:1.5px solid #EEE; border-radius:8px;
+  padding:3px 8px; font-size:11px; color:#888;
+}
 .sc-desc {
   font-size:12px; color:#666; line-height:1.7; text-align:left;
   background:#FFFDF5; border:2px solid #EEE; border-radius:12px;
@@ -364,20 +375,23 @@ body {
     </div>
   </div>
 
-  <!-- Share Card (long-press to save) -->
+  <!-- Share Card (long-press to screenshot) -->
   <div class="share-card-wrap" id="share-card-wrap" style="display:none">
     <div id="share-card">
       <div class="sc-header">BBTI · 羽球鸟类型测试</div>
+      <div class="sc-match" id="sc-match"></div>
       <img class="sc-illust" id="sc-illust" src="" alt="">
       <div class="sc-name" id="sc-name"></div>
       <div class="sc-tagline" id="sc-tagline"></div>
+      <div class="sc-traits" id="sc-traits"></div>
       <div class="sc-desc" id="sc-desc"></div>
       <div class="sc-footer">
         <span>表情商店搜索「小鸡毛」🐥</span>
-        <span>BBTI</span>
+        <span>来测测你是哪种球友 🏸</span>
       </div>
     </div>
   </div>
+  <p id="share-hint" style="display:none;text-align:center;font-size:13px;color:#999;margin-top:8px;">👆 长按上方卡片截图保存</p>
 
   <div class="sim-section">
     <div class="sim-title">🏸 其他相似类型</div>
@@ -385,7 +399,7 @@ body {
   </div>
 
   <div class="r-actions">
-    <button class="btn" onclick="saveShareImage()">保存结果图片 📸</button>
+    <button class="btn" onclick="toggleShareCard()">生成分享卡片 📸</button>
     <button class="btn-green" onclick="shareText()">复制分享文案 📋</button>
     <button class="btn-secondary" onclick="restart()">再测一次 🔄</button>
   </div>
@@ -395,8 +409,7 @@ body {
 </div><!-- /app -->
 <div class="toast" id="toast"></div>
 
-<!-- html2canvas for screenshot -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 
 <script>
 // ===== Questions =====
@@ -555,6 +568,7 @@ const results = {
 // ===== State =====
 let currentQ = 0, scores = {}, shuffled = [];
 
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
@@ -641,10 +655,14 @@ function showResult() {
   document.getElementById('r-desc').textContent = r.description;
 
   // Share card
+  document.getElementById('sc-match').textContent = `${pct}% 匹配`;
   document.getElementById('sc-illust').src = r.img;
   document.getElementById('sc-name').textContent = r.name;
   document.getElementById('sc-name').style.color = r.color;
   document.getElementById('sc-tagline').textContent = r.tagline;
+  const scTraits = document.getElementById('sc-traits');
+  scTraits.innerHTML = '';
+  r.traits.forEach(t => { scTraits.innerHTML += `<span>${t}</span>`; });
   document.getElementById('sc-desc').textContent = r.description;
 
   // Similar
@@ -666,26 +684,19 @@ function showResult() {
   showPage('page-result');
 }
 
-function saveShareImage() {
+function toggleShareCard() {
   const wrap = document.getElementById('share-card-wrap');
-  wrap.style.display = 'block';
-  setTimeout(() => {
-    const card = document.getElementById('share-card');
-    html2canvas(card, {
-      scale: 2, useCORS: true, backgroundColor: '#FFF8E7',
-      logging: false
-    }).then(canvas => {
-      // Try to download
-      const link = document.createElement('a');
-      link.download = 'BBTI_我的球场类型.webp';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      toast('图片已保存 📸');
-    }).catch(() => {
-      toast('长按上方卡片可截图保存 📸');
-    });
-  }, 300);
+  const hint = document.getElementById('share-hint');
+  if (wrap.style.display === 'none' || !wrap.style.display) {
+    wrap.style.display = 'block';
+    hint.style.display = 'block';
+    setTimeout(() => wrap.scrollIntoView({ behavior:'smooth', block:'center' }), 100);
+  } else {
+    wrap.style.display = 'none';
+    hint.style.display = 'none';
+  }
 }
+
 
 function shareText() {
   const name = document.getElementById('r-name').textContent;
