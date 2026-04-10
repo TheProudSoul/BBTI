@@ -703,7 +703,7 @@ function tryCanvasShare() {
     const desc = document.getElementById('r-desc').textContent;
     const imgSrc = document.getElementById('r-illust').src;
     const match = document.getElementById('r-match').textContent;
-    const traits = [...document.querySelectorAll('.trait-tag')].map(t => t.textContent);
+    const traits = [...document.querySelectorAll('#r-traits span')].map(t => t.textContent);
 
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -711,19 +711,17 @@ function tryCanvasShare() {
       try {
         const dpr = 2;
         const W = 750;
-        // We'll calculate H dynamically after drawing text
         const cvs = document.createElement('canvas');
         const ctx = cvs.getContext('2d');
 
         // Pre-measure description text height
-        cvs.width = W * dpr; cvs.height = 2000 * dpr;
+        cvs.width = W * dpr; cvs.height = 3000 * dpr;
         ctx.scale(dpr, dpr);
-        ctx.font = '16px sans-serif';
-        const descLines = getWrappedLines(ctx, desc, W - 180);
-        const descH = descLines.length * 28 + 30;
-        const H = 680 + descH; // compact total height
+        ctx.font = '20px sans-serif';
+        const descLines = getWrappedLines(ctx, desc, W - 140);
+        const descH = descLines.length * 34 + 36;
+        const H = 880 + descH;
 
-        // Reset canvas to final size
         cvs.width = W * dpr; cvs.height = H * dpr;
         ctx.scale(dpr, dpr);
 
@@ -732,80 +730,79 @@ function tryCanvasShare() {
         grad.addColorStop(0,'#FFF8E7'); grad.addColorStop(1,'#FFEDBE');
         ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
 
-        // Decorative rays behind illustration
-        ctx.save(); ctx.translate(W/2, 200); ctx.globalAlpha = 0.10;
+        // Decorative rays
+        ctx.save(); ctx.translate(W/2, 280); ctx.globalAlpha = 0.10;
         for (let i = 0; i < 20; i++) {
           ctx.beginPath(); ctx.moveTo(0,0);
           const a1 = (i/20)*Math.PI*2, a2 = ((i+0.4)/20)*Math.PI*2;
-          ctx.lineTo(Math.cos(a1)*200, Math.sin(a1)*200);
-          ctx.lineTo(Math.cos(a2)*200, Math.sin(a2)*200);
+          ctx.lineTo(Math.cos(a1)*300, Math.sin(a1)*300);
+          ctx.lineTo(Math.cos(a2)*300, Math.sin(a2)*300);
           ctx.closePath(); ctx.fillStyle='#FFD93D'; ctx.fill();
         }
         ctx.restore();
 
-        // BBTI badge (smaller)
+        // BBTI badge
         ctx.fillStyle = '#333';
-        rr(ctx, W/2-40, 20, 80, 26, 6); ctx.fill();
-        ctx.fillStyle = '#FFD93D'; ctx.font = 'bold 14px sans-serif';
-        ctx.textAlign = 'center'; ctx.fillText('BBTI', W/2, 38);
+        rr(ctx, W/2-50, 24, 100, 32, 8); ctx.fill();
+        ctx.fillStyle = '#FFD93D'; ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'center'; ctx.fillText('BBTI', W/2, 46);
 
         // Match badge
-        ctx.fillStyle = '#FFD93D'; ctx.strokeStyle = '#333'; ctx.lineWidth = 2.5;
-        rr(ctx, W/2-55, 54, 110, 30, 15); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#333'; ctx.font = 'bold 15px sans-serif';
-        ctx.fillText(match, W/2, 74);
+        ctx.fillStyle = '#FFD93D'; ctx.strokeStyle = '#333'; ctx.lineWidth = 3;
+        rr(ctx, W/2-75, 66, 150, 40, 20); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#333'; ctx.font = 'bold 22px sans-serif';
+        ctx.fillText(match, W/2, 92);
 
-        // BIG illustration
-        const iS = 300;
-        ctx.drawImage(img, W/2-iS/2, 92, iS, iS);
+        // 🐥 BIG illustration — the star of the card
+        const iS = 420;
+        ctx.drawImage(img, W/2-iS/2, 116, iS, iS);
 
-        // White card (tight)
-        const cardY = 400;
-        const cardH = H - cardY - 40;
-        ctx.fillStyle = 'rgba(255,253,245,0.9)'; ctx.strokeStyle = '#E8E0D0'; ctx.lineWidth = 2.5;
-        rr(ctx, 40, cardY, W-80, cardH, 20); ctx.fill(); ctx.stroke();
+        // White card (overlaps illustration slightly for layered feel)
+        const cardY = 540;
+        const cardH = H - cardY - 44;
+        ctx.fillStyle = 'rgba(255,253,245,0.94)'; ctx.strokeStyle = '#E8E0D0'; ctx.lineWidth = 3;
+        rr(ctx, 32, cardY, W-64, cardH, 24); ctx.fill(); ctx.stroke();
 
-        let y = cardY + 28;
-        // "你的球友类型是"
-        ctx.fillStyle = '#B0A080'; ctx.font = '14px sans-serif';
+        let y = cardY + 34;
+        ctx.fillStyle = '#B0A080'; ctx.font = '17px sans-serif';
         ctx.textAlign = 'center'; ctx.fillText('你的球友类型是', W/2, y);
 
-        // Name (bigger)
-        y += 42;
-        ctx.fillStyle = color; ctx.font = 'bold 38px sans-serif';
+        // Name — BIG and bold
+        y += 56;
+        ctx.fillStyle = color; ctx.font = 'bold 52px sans-serif';
         ctx.fillText(name, W/2, y);
 
-        // Tagline
-        y += 32;
-        ctx.font = '14px sans-serif';
-        ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.strokeStyle='#E0D8C8'; ctx.lineWidth=1.5;
-        const tw = ctx.measureText(tagline).width + 36;
-        rr(ctx, W/2-tw/2, y-14, tw, 28, 14); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#888'; ctx.fillText(tagline, W/2, y+4);
+        // Tagline pill
+        y += 44;
+        ctx.font = '18px sans-serif';
+        ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.strokeStyle='#E0D8C8'; ctx.lineWidth=1.5;
+        const tw = ctx.measureText(tagline).width + 48;
+        rr(ctx, W/2-tw/2, y-18, tw, 38, 19); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#888'; ctx.fillText(tagline, W/2, y+6);
 
-        // Traits
-        y += 30;
-        ctx.font = '13px sans-serif';
-        const totalTraitW = traits.reduce((s,t) => s + ctx.measureText(t).width + 24, 0) + (traits.length-1)*8;
+        // Traits pills
+        y += 40;
+        ctx.font = '16px sans-serif';
+        const totalTraitW = traits.reduce((s,t) => s + ctx.measureText(t).width + 32, 0) + (traits.length-1)*10;
         let tx = W/2 - totalTraitW/2;
         traits.forEach(t => {
-          const m = ctx.measureText(t).width + 24;
-          ctx.fillStyle='rgba(255,248,231,0.8)'; rr(ctx, tx, y-10, m, 24, 12); ctx.fill();
-          ctx.strokeStyle='#E8E0D0'; ctx.lineWidth=1; ctx.stroke();
-          ctx.fillStyle='#888'; ctx.textAlign='center';
-          ctx.fillText(t, tx+m/2, y+6); tx += m + 8;
+          const m = ctx.measureText(t).width + 32;
+          ctx.fillStyle='rgba(255,248,231,0.85)'; rr(ctx, tx, y-14, m, 32, 16); ctx.fill();
+          ctx.strokeStyle='#E8E0D0'; ctx.lineWidth=1.5; ctx.stroke();
+          ctx.fillStyle='#777'; ctx.textAlign='center';
+          ctx.fillText(t, tx+m/2, y+7); tx += m + 10;
         });
 
-        // Desc box
-        y += 28;
-        ctx.fillStyle='rgba(255,248,231,0.5)'; rr(ctx, 65, y, W-130, descH, 12); ctx.fill();
-        ctx.fillStyle='#555'; ctx.font='16px sans-serif'; ctx.textAlign='left';
-        let dy = y + 24;
-        descLines.forEach(line => { ctx.fillText(line, 85, dy); dy += 28; });
+        // Desc box — tight around text
+        y += 36;
+        ctx.fillStyle='rgba(255,248,231,0.5)'; rr(ctx, 52, y, W-104, descH, 14); ctx.fill();
+        ctx.fillStyle='#555'; ctx.font='20px sans-serif'; ctx.textAlign='left';
+        let dy = y + 32;
+        descLines.forEach(line => { ctx.fillText(line, 74, dy); dy += 34; });
 
         // Footer
-        ctx.textAlign='center'; ctx.fillStyle='#CCC'; ctx.font='11px sans-serif';
-        ctx.fillText('表情商店搜索「小鸡毛」· 来测测你是哪种球友 🏸', W/2, H-14);
+        ctx.textAlign='center'; ctx.fillStyle='#CCC'; ctx.font='14px sans-serif';
+        ctx.fillText('表情商店搜索「小鸡毛」· 来测测你是哪种球友 🏸', W/2, H-16);
 
         // Export
         const dataUrl = cvs.toDataURL('image/png');
@@ -826,9 +823,9 @@ function showImgOverlay(url) {
     ov.id = 'img-overlay';
     ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;';
     ov.innerHTML = `
-      <p style="color:#FFF;font-size:15px;font-weight:700;margin-bottom:10px;">长按图片保存 📸</p>
-      <img id="ov-img" style="max-width:88%;max-height:72vh;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
-      <button onclick="document.getElementById('img-overlay').style.display='none'" style="margin-top:14px;padding:10px 32px;background:#FFD93D;border:2.5px solid #333;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;">关闭</button>
+      <p style="color:#FFF;font-size:15px;font-weight:700;margin-bottom:8px;">长按图片保存 📸</p>
+      <img id="ov-img" style="max-width:94%;max-height:80vh;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+      <button onclick="document.getElementById('img-overlay').style.display='none'" style="margin-top:10px;padding:10px 32px;background:#FFD93D;border:2.5px solid #333;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;">关闭</button>
     `;
     document.body.appendChild(ov);
   }
