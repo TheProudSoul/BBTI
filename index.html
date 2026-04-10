@@ -391,7 +391,7 @@ body {
       </div>
     </div>
   </div>
-  <p id="share-hint" style="display:none;text-align:center;font-size:13px;color:#999;margin-top:8px;">👆 长按上方卡片截图保存</p>
+  <p id="share-hint" style="display:none;text-align:center;font-size:13px;color:#999;margin-top:8px;">📱 截屏保存上方卡片，发给球友看看～</p>
 
   <div class="sim-section">
     <div class="sim-title">🏸 其他相似类型</div>
@@ -685,17 +685,139 @@ function showResult() {
 }
 
 function toggleShareCard() {
-  const wrap = document.getElementById('share-card-wrap');
-  const hint = document.getElementById('share-hint');
-  if (wrap.style.display === 'none' || !wrap.style.display) {
+  // Try Canvas approach first (works on https), fallback to HTML card
+  tryCanvasShare().catch(() => {
+    const wrap = document.getElementById('share-card-wrap');
+    const hint = document.getElementById('share-hint');
     wrap.style.display = 'block';
     hint.style.display = 'block';
     setTimeout(() => wrap.scrollIntoView({ behavior:'smooth', block:'center' }), 100);
-  } else {
-    wrap.style.display = 'none';
-    hint.style.display = 'none';
-  }
+  });
 }
+
+function tryCanvasShare() {
+  return new Promise((resolve, reject) => {
+    const name = document.getElementById('r-name').textContent;
+    const color = document.getElementById('r-name').style.color;
+    const tagline = document.getElementById('r-tagline').textContent;
+    const desc = document.getElementById('r-desc').textContent;
+    const imgSrc = document.getElementById('r-illust').src;
+    const match = document.getElementById('r-match').textContent;
+    const traits = [...document.querySelectorAll('.trait-tag')].map(t => t.textContent);
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+      try {
+        const dpr = 2;
+        const W = 750, H = 1334;
+        const cvs = document.createElement('canvas');
+        cvs.width = W * dpr; cvs.height = H * dpr;
+        const ctx = cvs.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        // BG gradient
+        const grad = ctx.createLinearGradient(0,0,0,H);
+        grad.addColorStop(0,'#FFF8E7'); grad.addColorStop(1,'#FFE4B5');
+        ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+        // Decorative rays
+        ctx.save(); ctx.translate(W/2, 260); ctx.globalAlpha = 0.12;
+        for (let i = 0; i < 24; i++) {
+          ctx.beginPath(); ctx.moveTo(0,0);
+          const a1 = (i/24)*Math.PI*2, a2 = ((i+0.4)/24)*Math.PI*2;
+          ctx.lineTo(Math.cos(a1)*280, Math.sin(a1)*280);
+          ctx.lineTo(Math.cos(a2)*280, Math.sin(a2)*280);
+          ctx.closePath(); ctx.fillStyle='#FFD93D'; ctx.fill();
+        }
+        ctx.restore();
+
+        // BBTI badge
+        ctx.fillStyle = '#333';
+        rr(ctx, W/2-55, 40, 110, 34, 8); ctx.fill();
+        ctx.fillStyle = '#FFD93D'; ctx.font = 'bold 16px sans-serif';
+        ctx.textAlign = 'center'; ctx.fillText('BBTI', W/2, 63);
+
+        // Match badge
+        ctx.fillStyle = '#FFD93D'; ctx.strokeStyle = '#333'; ctx.lineWidth = 2.5;
+        rr(ctx, W/2-65, 88, 130, 36, 10); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#333'; ctx.font = 'bold 17px sans-serif';
+        ctx.fillText(match, W/2, 112);
+
+        // Illustration
+        const iS = 240;
+        ctx.drawImage(img, W/2-iS/2, 140, iS, iS);
+
+        // White card
+        ctx.fillStyle = '#FFFDF5'; ctx.strokeStyle = '#E8E0D0'; ctx.lineWidth = 3;
+        rr(ctx, 50, 410, W-100, H-480, 24); ctx.fill(); ctx.stroke();
+
+        // "你的球友类型是"
+        ctx.fillStyle = '#B0A080'; ctx.font = '15px sans-serif';
+        ctx.textAlign = 'center'; ctx.fillText('你的球友类型是', W/2, 448);
+
+        // Name
+        ctx.fillStyle = color; ctx.font = 'bold 42px sans-serif';
+        ctx.fillText(name, W/2, 500);
+
+        // Tagline pill
+        ctx.fillStyle='#FFF'; ctx.strokeStyle='#E0D8C8'; ctx.lineWidth=1.5;
+        const tw = ctx.measureText(tagline).width + 40;
+        rr(ctx, W/2-tw/2, 516, tw, 34, 17); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#999'; ctx.font='14px sans-serif'; ctx.fillText(tagline, W/2, 538);
+
+        // Traits
+        let tx = W/2 - (traits.length * 45);
+        ctx.font = '13px sans-serif';
+        traits.forEach(t => {
+          const m = ctx.measureText(t).width + 20;
+          ctx.fillStyle='#FFF8E7'; rr(ctx, tx, 564, m, 28, 8); ctx.fill();
+          ctx.strokeStyle='#EEE'; ctx.lineWidth=1; ctx.stroke();
+          ctx.fillStyle='#999'; ctx.textAlign='center';
+          ctx.fillText(t, tx+m/2, 583); tx += m + 10;
+        });
+
+        // Desc box
+        ctx.fillStyle='#FFF8E7'; rr(ctx, 80, 610, W-160, H-700, 14); ctx.fill();
+        ctx.fillStyle='#666'; ctx.font='15px sans-serif'; ctx.textAlign='left';
+        wt(ctx, desc, 100, 644, W-200, 26);
+
+        // Footer
+        ctx.textAlign='center'; ctx.fillStyle='#CCC'; ctx.font='12px sans-serif';
+        ctx.fillText('表情商店搜索「小鸡毛」🐥', W/2-80, H-38);
+        ctx.fillText('来测测你是哪种球友 🏸', W/2+100, H-38);
+
+        // Export
+        const dataUrl = cvs.toDataURL('image/png');
+        showImgOverlay(dataUrl);
+        resolve();
+      } catch(e) { reject(e); }
+    };
+    img.onerror = () => reject(new Error('img load fail'));
+    img.src = imgSrc;
+    setTimeout(() => reject(new Error('timeout')), 3000);
+  });
+}
+
+function showImgOverlay(url) {
+  let ov = document.getElementById('img-overlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'img-overlay';
+    ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;';
+    ov.innerHTML = `
+      <p style="color:#FFF;font-size:15px;font-weight:700;margin-bottom:10px;">长按图片保存 📸</p>
+      <img id="ov-img" style="max-width:88%;max-height:72vh;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+      <button onclick="document.getElementById('img-overlay').style.display='none'" style="margin-top:14px;padding:10px 32px;background:#FFD93D;border:2.5px solid #333;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;">关闭</button>
+    `;
+    document.body.appendChild(ov);
+  }
+  document.getElementById('ov-img').src = url;
+  ov.style.display = 'flex';
+}
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+function wt(c,t,x,y,mw,lh){let l='';for(let i=0;i<t.length;i++){const s=l+t[i];if(c.measureText(s).width>mw&&l){c.fillText(l,x,y);l=t[i];y+=lh;}else l=s;}if(l)c.fillText(l,x,y);}
 
 
 function shareText() {
