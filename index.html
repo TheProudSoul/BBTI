@@ -841,7 +841,7 @@ function getWrappedLines(ctx,text,maxW){const lines=[];let line='';for(let i=0;i
 function shareText() {
   const name = document.getElementById('r-name').textContent;
   const tag = document.getElementById('r-tagline').textContent;
-  const text = `我在 BBTI 羽球鸟类型测试中是【${name}】— ${tag}！来测测你是哪种球友 🏸🐥`;
+  const text = `我在 BBTI 羽球鸟类型测试中是【${name}】— ${tag}！来测测你是哪种球友 🏸🐥\nhttps://theproudsoul.github.io/BBTI/`;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => toast('已复制到剪贴板 ✅'));
   } else {
