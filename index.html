@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BBTI · 羽球鸟类型测试</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Noto Sans SC', -apple-system, sans-serif;
+  background: linear-gradient(180deg, #FFF8E7 0%, #FFE4B5 100%);
+  min-height: 100vh;
+  display: flex; justify-content: center;
+  overflow-x: hidden;
+}
+.app { width:100%; max-width:420px; min-height:100vh; position:relative; padding:20px 16px 40px; }
+
+/* Floating feathers */
+@keyframes float-down {
+  0% { transform: translateY(-60px) rotate(0deg); opacity:0; }
+  10% { opacity:0.5; }
+  90% { opacity:0.3; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity:0; }
+}
+.feather {
+  position:fixed; pointer-events:none; z-index:0;
+  animation: float-down linear infinite;
+  font-size:18px;
+}
+
+/* Pages */
+.page { display:none; position:relative; z-index:1; }
+.page.active { display:block; animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+/* ======= HOME ======= */
+.home-tag {
+  text-align:center; margin-top:20px;
+  font-size:11px; color:#B0A080; letter-spacing:3px; font-weight:700;
+}
+.home-title {
+  text-align:center; margin:16px 0 6px;
+  font-size:26px; font-weight:900; color:#333; line-height:1.5;
+}
+.home-sub { text-align:center; font-size:13px; color:#999; letter-spacing:1px; margin-bottom:20px; }
+.home-hero {
+  display:flex; justify-content:center; margin:10px 0 24px;
+}
+.home-hero img {
+  width:200px; height:200px; object-fit:contain;
+  animation: hero-bounce 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.1));
+}
+@keyframes hero-bounce {
+  0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-14px) rotate(2deg)}
+}
+.home-card {
+  background:#FFFDF5;
+  border:3px solid #333;
+  border-radius:20px;
+  box-shadow:5px 5px 0 rgba(0,0,0,0.12);
+  padding:28px 20px;
+  text-align:center;
+  margin:0 4px;
+}
+.home-card .hc-title { font-size:15px; font-weight:700; color:#333; }
+.home-card p { font-size:13px; color:#777; margin-top:10px; line-height:1.7; }
+.home-types {
+  display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
+  margin-top:16px;
+}
+.home-types span {
+  display:inline-block;
+  background:#FFF; border:2px solid #EEE; border-radius:20px;
+  padding:4px 12px; font-size:12px; color:#888;
+}
+
+/* Buttons */
+.btn {
+  display:block; width:100%; max-width:280px; margin:20px auto 0;
+  padding:16px 0;
+  background:#FFD93D; border:3px solid #333; border-radius:50px;
+  box-shadow:4px 4px 0 rgba(0,0,0,0.15);
+  font-size:18px; font-weight:700; color:#333;
+  cursor:pointer; transition:all 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active { transform:translate(2px,2px); box-shadow:2px 2px 0 rgba(0,0,0,0.15); }
+.btn-secondary {
+  display:block; width:100%; max-width:280px; margin:10px auto;
+  padding:14px 0;
+  background:#FFF; border:3px solid #333; border-radius:50px;
+  box-shadow:4px 4px 0 rgba(0,0,0,0.1);
+  font-size:16px; font-weight:700; color:#333;
+  cursor:pointer; transition:all 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-secondary:active { transform:translate(2px,2px); box-shadow:2px 2px 0 rgba(0,0,0,0.1); }
+.btn-green {
+  display:block; width:100%; max-width:280px; margin:10px auto;
+  padding:14px 0;
+  background:#7ED957; border:3px solid #333; border-radius:50px;
+  box-shadow:4px 4px 0 rgba(0,0,0,0.15);
+  font-size:16px; font-weight:700; color:#FFF;
+  cursor:pointer; transition:all 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-green:active { transform:translate(2px,2px); box-shadow:2px 2px 0 rgba(0,0,0,0.15); }
+
+/* ======= QUIZ ======= */
+.quiz-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.quiz-top span { font-size:13px; font-weight:700; color:#999; }
+.progress-bar { width:100%; height:8px; background:#F0E6D3; border-radius:10px; overflow:hidden; margin-bottom:20px; }
+.progress-fill { height:100%; background:linear-gradient(90deg,#FF6B6B,#FF9F43); border-radius:10px; transition:width 0.4s ease; }
+
+.q-card {
+  background:#FFFDF5; border:3px solid #333; border-radius:20px;
+  box-shadow:5px 5px 0 rgba(0,0,0,0.12);
+  padding:24px 20px 20px; text-align:center; margin-bottom:16px;
+  position:relative; overflow:hidden;
+}
+.q-num-badge {
+  display:inline-block; background:#FFD93D; border:2px solid #333;
+  border-radius:20px; padding:3px 14px; font-size:12px; font-weight:700; color:#333;
+  margin-bottom:14px;
+}
+.q-text { font-size:17px; font-weight:700; color:#333; line-height:1.6; }
+.q-illust {
+  width:120px; height:120px; object-fit:contain; margin-top:12px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+}
+
+.opt-btn {
+  display:flex; align-items:center; gap:12px; width:100%;
+  background:#FFFDF5; border:3px solid #333; border-radius:16px;
+  box-shadow:4px 4px 0 rgba(0,0,0,0.1);
+  padding:14px 16px; margin-bottom:10px;
+  font-size:14px; font-weight:500; color:#333;
+  cursor:pointer; text-align:left; transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.opt-btn .opt-letter {
+  display:flex; align-items:center; justify-content:center;
+  width:32px; height:32px; flex-shrink:0;
+  background:#FFE8B0; border:2px solid #333; border-radius:10px;
+  font-size:14px; font-weight:900; color:#333;
+}
+.opt-btn:active, .opt-btn.clicked {
+  transform:scale(0.97) translate(2px,2px);
+  box-shadow:2px 2px 0 rgba(0,0,0,0.1);
+  background:#FFE8B0;
+}
+
+/* ======= RESULT ======= */
+.result-wrap {
+  display:flex; flex-direction:column; align-items:center; position:relative;
+  padding-top:10px;
+}
+.rays {
+  position:absolute; top:40px; left:50%; transform:translateX(-50%);
+  width:300px; height:300px;
+  background:conic-gradient(
+    #FFE8B0 0deg,#FFF8E7 18deg,#FFE8B0 36deg,#FFF8E7 54deg,
+    #FFE8B0 72deg,#FFF8E7 90deg,#FFE8B0 108deg,#FFF8E7 126deg,
+    #FFE8B0 144deg,#FFF8E7 162deg,#FFE8B0 180deg,#FFF8E7 198deg,
+    #FFE8B0 216deg,#FFF8E7 234deg,#FFE8B0 252deg,#FFF8E7 270deg,
+    #FFE8B0 288deg,#FFF8E7 306deg,#FFE8B0 324deg,#FFF8E7 342deg,#FFE8B0 360deg
+  );
+  border-radius:50%; animation:spin 25s linear infinite; opacity:0.6;
+}
+@keyframes spin { to{transform:translateX(-50%) rotate(360deg)} }
+
+.r-badge {
+  position:relative; z-index:2;
+  background:#333; color:#FFD93D;
+  padding:4px 16px; border-radius:6px;
+  font-size:12px; font-weight:700; letter-spacing:2px;
+}
+.r-match {
+  position:relative; z-index:2;
+  display:inline-block; background:#FFD93D; border:2px solid #333;
+  border-radius:8px; padding:4px 14px;
+  font-size:14px; font-weight:700; color:#333; margin:10px 0;
+}
+.r-illust {
+  position:relative; z-index:2;
+  width:160px; height:160px; object-fit:contain;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.12));
+  animation: result-pop 0.6s ease;
+}
+@keyframes result-pop {
+  0%{transform:scale(0.3) rotate(-10deg);opacity:0}
+  60%{transform:scale(1.1) rotate(3deg)}
+  100%{transform:scale(1) rotate(0deg);opacity:1}
+}
+.r-card {
+  position:relative; z-index:2;
+  background:#FFFDF5; border:3px solid #333; border-radius:20px;
+  box-shadow:5px 5px 0 rgba(0,0,0,0.12);
+  padding:24px 20px; text-align:center; width:100%; margin-top:10px;
+}
+.r-pre { font-size:13px; color:#999; }
+.r-name { font-size:30px; font-weight:900; margin:6px 0; }
+.r-tagline {
+  display:inline-block; background:#FFF; border:2px solid #DDD;
+  border-radius:20px; padding:5px 16px; font-size:13px; color:#666;
+  margin-bottom:14px;
+}
+.r-traits {
+  display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:14px;
+}
+.r-traits span {
+  background:#FFF8E7; border:1.5px solid #EEE; border-radius:8px;
+  padding:4px 10px; font-size:11px; color:#888;
+}
+.r-desc {
+  font-size:13px; color:#555; line-height:1.8; text-align:left;
+  padding:14px; background:#FFF8E7; border-radius:12px;
+}
+
+.sim-section { position:relative; z-index:2; margin-top:20px; width:100%; }
+.sim-title { font-size:14px; color:#666; margin-bottom:10px; font-weight:700; }
+.sim-grid { display:flex; gap:10px; }
+.sim-card {
+  flex:1; background:#FFFDF5; border:2px solid #333; border-radius:14px;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.08); padding:14px 8px; text-align:center;
+  position:relative;
+}
+.sim-rank {
+  position:absolute; top:-8px; right:-4px;
+  background:#FF9F43; color:#FFF; font-size:10px; font-weight:700;
+  padding:2px 8px; border-radius:8px;
+}
+.sim-card img { width:60px; height:60px; object-fit:contain; }
+.sim-card .s-name { font-size:12px; font-weight:700; color:#333; margin:4px 0 2px; }
+.sim-card .s-pct { font-size:11px; font-weight:700; padding:2px 8px; border-radius:8px; display:inline-block; }
+
+.r-actions { position:relative; z-index:2; width:100%; margin-top:16px; }
+
+/* ======= SHARE CARD (canvas) ======= */
+.share-card-wrap {
+  position:relative; z-index:2; width:100%; margin-top:16px;
+  border-radius:16px; overflow:hidden;
+  border:3px solid #333;
+  box-shadow:5px 5px 0 rgba(0,0,0,0.12);
+}
+#share-card {
+  width:100%; background:#FFF8E7;
+  padding:24px 20px; text-align:center;
+}
+.sc-header { font-size:11px; color:#B0A080; letter-spacing:2px; font-weight:700; }
+.sc-illust { width:120px; height:120px; object-fit:contain; margin:12px auto; display:block; }
+.sc-name { font-size:26px; font-weight:900; margin:4px 0; }
+.sc-tagline { font-size:12px; color:#888; margin-bottom:12px; }
+.sc-desc {
+  font-size:12px; color:#666; line-height:1.7; text-align:left;
+  background:#FFFDF5; border:2px solid #EEE; border-radius:12px;
+  padding:12px; margin-bottom:14px;
+}
+.sc-footer {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:10px; color:#BBB;
+}
+.sc-qr-placeholder {
+  width:50px; height:50px; background:#F0E6D3; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:8px; color:#999;
+}
+
+/* Footer */
+.footer { text-align:center; font-size:12px; color:#CCC; margin-top:24px; position:relative; z-index:2; }
+
+/* Toast */
+.toast {
+  position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+  background:rgba(0,0,0,0.78); color:#FFF;
+  padding:10px 24px; border-radius:20px;
+  font-size:14px; z-index:999; opacity:0; transition:opacity 0.3s;
+  pointer-events:none;
+}
+.toast.show { opacity:1; }
+
+/* Loading overlay */
+.loading {
+  display:none; position:fixed; top:0;left:0;right:0;bottom:0;
+  background:rgba(255,248,231,0.92); z-index:100;
+  flex-direction:column; align-items:center; justify-content:center;
+}
+.loading.show { display:flex; }
+.loading-chick {
+  width:80px; animation: loading-bounce 1s ease-in-out infinite;
+}
+@keyframes loading-bounce {
+  0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)}
+}
+.loading p { margin-top:16px; font-size:15px; font-weight:700; color:#333; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <img class="loading-chick" src="img/hero.png" alt="">
+  <p>正在分析你的球场人格...</p>
+</div>
+
+<!-- ====== HOME ====== -->
+<div class="page active" id="page-home">
+  <div class="home-tag">BBTI · BADMINTON BIRD TYPE INDICATOR</div>
+  <div class="home-title">测一测你在球场上<br>是什么鸟 🏸</div>
+  <div class="home-sub">羽球鸟类型测试</div>
+  <div class="home-hero">
+    <img src="img/hero.png" alt="小鸡毛">
+  </div>
+  <div class="home-card">
+    <div class="hc-title">15 道题 · 约 2 分钟</div>
+    <p>回答以下问题，测测你在球场上<br>是暴力杀手？网前鬼影？还是鸽王？</p>
+    <div class="home-types">
+      <span>🎙️ 场上教练</span>
+      <span>💪 永动机</span>
+      <span>👻 网前鬼影</span>
+      <span>💎 装备党</span>
+      <span>🕊️ 鸽王</span>
+      <span>🧘 佛系</span>
+      <span>💀 接杀死者</span>
+      <span>🫣 违例户</span>
+    </div>
+  </div>
+  <button class="btn" onclick="startQuiz()">开始测试 🏸</button>
+  <div class="footer">表情商店搜索「小鸡毛」免费添加 🐥</div>
+</div>
+
+<!-- ====== QUIZ ====== -->
+<div class="page" id="page-quiz">
+  <div class="quiz-top">
+    <span id="q-num">题目 1</span>
+    <span id="q-total">/ 15</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  <div class="q-card">
+    <div class="q-num-badge" id="q-badge">Q1</div>
+    <div class="q-text" id="q-text"></div>
+    <img class="q-illust" id="q-illust" src="" alt="">
+  </div>
+  <div id="options-container"></div>
+  <div class="footer">表情商店搜索「小鸡毛」免费添加 🐥</div>
+</div>
+
+<!-- ====== RESULT ====== -->
+<div class="page" id="page-result">
+  <div class="result-wrap">
+    <div class="rays"></div>
+    <div class="r-badge">BBTI</div>
+    <div class="r-match" id="r-match">99% 匹配</div>
+    <img class="r-illust" id="r-illust" src="" alt="">
+    <div class="r-card">
+      <div class="r-pre">你的球友类型是</div>
+      <div class="r-name" id="r-name"></div>
+      <div class="r-tagline" id="r-tagline"></div>
+      <div class="r-traits" id="r-traits"></div>
+      <div class="r-desc" id="r-desc"></div>
+    </div>
+  </div>
+
+  <!-- Share Card (long-press to save) -->
+  <div class="share-card-wrap" id="share-card-wrap" style="display:none">
+    <div id="share-card">
+      <div class="sc-header">BBTI · 羽球鸟类型测试</div>
+      <img class="sc-illust" id="sc-illust" src="" alt="">
+      <div class="sc-name" id="sc-name"></div>
+      <div class="sc-tagline" id="sc-tagline"></div>
+      <div class="sc-desc" id="sc-desc"></div>
+      <div class="sc-footer">
+        <span>表情商店搜索「小鸡毛」🐥</span>
+        <span>BBTI</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sim-section">
+    <div class="sim-title">🏸 其他相似类型</div>
+    <div class="sim-grid" id="sim-grid"></div>
+  </div>
+
+  <div class="r-actions">
+    <button class="btn" onclick="saveShareImage()">保存结果图片 📸</button>
+    <button class="btn-green" onclick="shareText()">复制分享文案 📋</button>
+    <button class="btn-secondary" onclick="restart()">再测一次 🔄</button>
+  </div>
+  <div class="footer">表情商店搜索「小鸡毛」免费添加 🐥</div>
+</div>
+
+</div><!-- /app -->
+<div class="toast" id="toast"></div>
+
+<!-- html2canvas for screenshot -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+// ===== Questions =====
+const questions = [
+  { q:"下雨天约球，你的反应？", illust:"q_rescue", options:[
+    {text:"雨算什么！我车里备了三双鞋",letter:"A",type:"MACHINE"},
+    {text:"正好在家看解说，研究对手打法",letter:"B",type:"COACH"},
+    {text:"下雨天=合法摸鱼日，奶茶安排上",letter:"C",type:"ZEN"},
+    {text:"哎呀刚好有事…（其实在家躺着）",letter:"D",type:"PIGEON"}
+  ]},
+  { q:"比赛第一个球就打丢了，你会？", illust:"q_miss", options:[
+    {text:"没关系，先试试对面反手好不好用",letter:"A",type:"COACH"},
+    {text:"立刻大力杀球找回场子",letter:"B",type:"MACHINE"},
+    {text:"完了完了今天状态不行（然后继续打丢）",letter:"C",type:"DEAD"},
+    {text:"这球不算！刚才风太大了",letter:"D",type:"FOUL"}
+  ]},
+  { q:"你的球包里最多的东西是？", illust:"q_practice", options:[
+    {text:"三把以上球拍，型号各不同",letter:"A",type:"GEAR"},
+    {text:"急救喷雾+膝盖贴+护腕若干",letter:"B",type:"MACHINE"},
+    {text:"奶茶杯和零食（球拍差点忘带）",letter:"C",type:"ZEN"},
+    {text:"录像设备和战术小本子",letter:"D",type:"COACH"}
+  ]},
+  { q:"搭档回球下网，你脱口而出的是？", illust:"q_netroll", options:[
+    {text:"你拍面再抬高一点，手腕发力别甩大臂",letter:"A",type:"COACH"},
+    {text:"没事没事！（默默跑去后场全包了）",letter:"B",type:"MACHINE"},
+    {text:"哈哈哈不重要，开心就好～",letter:"C",type:"ZEN"},
+    {text:"你试试我这把拍子，手感绝对不一样",letter:"D",type:"GEAR"}
+  ]},
+  { q:"球友群里最常发的话？", illust:"q_icome", options:[
+    {text:"「今晚谁去+1」→ 然后装死不回复",letter:"A",type:"PIGEON"},
+    {text:"看这个视频！戴资颖这个假动作绝了",letter:"B",type:"COACH"},
+    {text:"我新入的天斧到了！有人要摸一下吗",letter:"C",type:"GEAR"},
+    {text:"打完去吃什么？火锅还是烧烤？",letter:"D",type:"ZEN"}
+  ]},
+  { q:"早上8点有球局，你几点到？", illust:"q_practice", options:[
+    {text:"7:30到，先拉一百个高远球热身",letter:"A",type:"MACHINE"},
+    {text:"准时到，穿好看的球服闪亮登场",letter:"B",type:"GEAR"},
+    {text:"迟到20分钟，说堵车了（其实刚起床）",letter:"C",type:"PIGEON"},
+    {text:"勉强到了，先坐场边喝咖啡缓缓",letter:"D",type:"ZEN"}
+  ]},
+  { q:"对面一记重杀砸过来，你？", illust:"q_block", options:[
+    {text:"下意识用拍子挡脸（活着最重要）",letter:"A",type:"DEAD"},
+    {text:"脚步到位正手接起来，打个反击",letter:"B",type:"MACHINE"},
+    {text:"侧身让开：「这个球出界了吧？」",letter:"C",type:"FOUL"},
+    {text:"扑上去接，虽然没接到但姿势很帅",letter:"D",type:"GHOST"}
+  ]},
+  { q:"别人夸你「今天打得好」，你内心？", illust:"q_drop", options:[
+    {text:"那必须的，毕竟练了这么久",letter:"A",type:"MACHINE"},
+    {text:"其实是对面太弱了（嘴硬）",letter:"B",type:"COACH"},
+    {text:"我觉得主要是这把新拍子加成",letter:"C",type:"GEAR"},
+    {text:"哈哈是吗？我都没咋用力",letter:"D",type:"GHOST"}
+  ]},
+  { q:"双打你最喜欢站的位置？", illust:"q_icome", options:[
+    {text:"网前！搓球、扑球、勾对角，嘿嘿",letter:"A",type:"GHOST"},
+    {text:"后场！让我杀！一直杀！",letter:"B",type:"MACHINE"},
+    {text:"哪里都行，反正我主要负责喊「好球！」",letter:"C",type:"ZEN"},
+    {text:"场边…今天我先看你们打（开始指导）",letter:"D",type:"COACH"}
+  ]},
+  { q:"球拍断线了，你的反应？", illust:"q_rescue", options:[
+    {text:"终于可以换那根一直想试的线了！",letter:"A",type:"GEAR"},
+    {text:"借我一把先！不能停！",letter:"B",type:"MACHINE"},
+    {text:"算了今天就打到这吧，去吃饭",letter:"C",type:"ZEN"},
+    {text:"我觉得是刚才那个球太重了",letter:"D",type:"FOUL"}
+  ]},
+  { q:"你怎么看「让球」这件事？", illust:"q_drop", options:[
+    {text:"让你先赢？不存在的，全力以赴！",letter:"A",type:"MACHINE"},
+    {text:"偶尔放几个球，维护友谊嘛",letter:"B",type:"ZEN"},
+    {text:"让球的时候偷偷练新技术",letter:"C",type:"GHOST"},
+    {text:"「我没让啊，是你接住了我的杀球」",letter:"D",type:"FOUL"}
+  ]},
+  { q:"打完球你第一时间干什么？", illust:"q_practice", options:[
+    {text:"记录今天的问题，回家看视频纠正",letter:"A",type:"COACH"},
+    {text:"冲向奶茶店 / 外卖已经在路上了",letter:"B",type:"ZEN"},
+    {text:"发朋友圈，配文「今日份运动打卡」",letter:"C",type:"GEAR"},
+    {text:"说好下次还来（然后鸽三次）",letter:"D",type:"PIGEON"}
+  ]},
+  { q:"有人约你打比赛，你？", illust:"q_block", options:[
+    {text:"来啊！先让我回去练两天",letter:"A",type:"MACHINE"},
+    {text:"帮你分析一下对手，我来当教练",letter:"B",type:"COACH"},
+    {text:"比赛太紧张了，我还是看着吧",letter:"C",type:"DEAD"},
+    {text:"那天好像有事…（再说再说）",letter:"D",type:"PIGEON"}
+  ]},
+  { q:"你觉得打球最快乐的时刻是？", illust:"q_netroll", options:[
+    {text:"杀球得分！砰的一声超解压！",letter:"A",type:"MACHINE"},
+    {text:"搓了一个完美的网前球，对手扑空",letter:"B",type:"GHOST"},
+    {text:"不是打球，是打完大家一起聊天吃东西",letter:"C",type:"ZEN"},
+    {text:"拆开新拍子包装的那一刻",letter:"D",type:"GEAR"}
+  ]},
+  { q:"你给自己的球场关键词是？", illust:"q_miss", options:[
+    {text:"热血、挥汗、不服就干",letter:"A",type:"MACHINE"},
+    {text:"脑子、策略、看穿一切",letter:"B",type:"COACH"},
+    {text:"快乐、随缘、重在参与",letter:"C",type:"ZEN"},
+    {text:"呃…我下次一定去",letter:"D",type:"PIGEON"}
+  ]}
+];
+
+const results = {
+  COACH: {
+    img:"img/coach.png", name:"场上教练", color:"#FF6B35",
+    tagline:"别人打球你指挥，你的嘴比拍子忙",
+    traits:["👁️ 观察力MAX","📋 战术大师","🗣️ 移动解说台"],
+    description:"你是球场上的移动解说台。每一个球你都能分析出三个改进点，搭档的反手、对面的步法、裁判的判罚——没有什么逃得过你的眼睛。虽然自己不一定打得最好，但论战术理解，你绝对是队里的「军师」。球友们对你的态度：又爱又怕。",
+    similar:["MACHINE","GHOST"]
+  },
+  MACHINE: {
+    img:"img/machine.png", name:"高远球永动机", color:"#2196F3",
+    tagline:"后场就是你的领地，不累不回家",
+    traits:["⚡ 体力无限","🔥 暴力输出","🏃 永远在跑"],
+    description:"你的体力条是无限的，一打就停不下来。高远球一百个起步，杀球从不含糊。别人打两局就瘫了，你还在问「再来一局？」你就是球场上的永动机，对手最怕遇到的那种——因为跟你打球，不是技术比拼，是体能消耗战。",
+    similar:["COACH","GEAR"]
+  },
+  GHOST: {
+    img:"img/ghost.png", name:"网前鬼影", color:"#9C27B0",
+    tagline:"搓球小妖精，对手一眨眼你就在网前了",
+    traits:["🎭 假动作大师","🕸️ 网前制霸","🧠 心理战专家"],
+    description:"你的风格是四个字：阴险狡诈（褒义）。搓球、勾对角、假动作、放网——你在网前的操作让对手怀疑人生。你可能不是力量最大的，但你一定是最让人头疼的。球友们的评价：跟你打球像在猜谜。",
+    similar:["COACH","FOUL"]
+  },
+  DEAD: {
+    img:"img/dead.png", name:"接杀死者", color:"#607D8B",
+    tagline:"对面一起跳你就闭眼，活着就是胜利",
+    traits:["🛡️ 保命第一","😌 心态超稳","🎉 偶尔超神"],
+    description:"杀球？能不能别冲我来？你在球场上最常做的动作不是挥拍，是闪躲。但你有个别人都没有的优点——超强的心理承受力。被杀十个你还能笑着说「再来」，偶尔接起一个杀球，全场都为你欢呼。",
+    similar:["ZEN","PIGEON"]
+  },
+  FOUL: {
+    img:"img/foul.png", name:"发球违例户", color:"#FF9800",
+    tagline:"过腰警告⚠️ 你的发球是一门玄学",
+    traits:["🎲 薛定谔发球","🤷 规则？什么规则","😏 永远觉得自己对"],
+    description:"你和规则之间的关系比较微妙。发球到底过没过腰？踩没踩线？这些问题在你身上永远是薛定谔的状态。但你从来不觉得自己违规——那些边界球，在你的世界里统统都是好球。朋友们已经放弃和你争论了。",
+    similar:["GHOST","ZEN"]
+  },
+  ZEN: {
+    img:"img/zen.png", name:"佛系球友", color:"#4CAF50",
+    tagline:"打球是借口，奶茶烧烤才是本体",
+    traits:["☕ 奶茶先行","😊 快乐第一","🍖 球后觅食"],
+    description:"对你来说，球场只是一个社交场所。比分？不记得。技术？随缘。重要的是——打完球去吃什么？你是球友群的快乐源泉，因为你在的局，永远有吃有喝有笑声。输赢不重要，快乐最重要。",
+    similar:["PIGEON","DEAD"]
+  },
+  GEAR: {
+    img:"img/gear.png", name:"装备党", color:"#E91E63",
+    tagline:"拍子比技术贵十倍，手胶比谁都讲究",
+    traits:["💰 氪金战士","📦 快递不断","🔍 参数狂人"],
+    description:"你的装备可以武装一个羽毛球队。球拍三把起步，球鞋按颜色配球服，手胶每次打完都要换新的。你可能不是打得最好的，但你一定是最好看的。球友问你推荐拍子，你能讲一小时。",
+    similar:["MACHINE","COACH"]
+  },
+  PIGEON: {
+    img:"img/pigeon.png", name:"鸽王", color:"#795548",
+    tagline:"群里永远+1，约了三次到了零次",
+    traits:["📱 线上活跃","🛏️ 线下消失","🪽 自由的灵魂"],
+    description:"你是球友群里最活跃的人——在线上。每次约球你都秒回「我去！」，然后在出发前一小时开始编借口。你不是不爱打球，你只是…太爱床了。球友们给你的评价：如果鸽子能打球，你早就是世界冠军了。",
+    similar:["ZEN","DEAD"]
+  }
+};
+
+// ===== State =====
+let currentQ = 0, scores = {}, shuffled = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function startQuiz() {
+  currentQ = 0;
+  scores = {};
+  Object.keys(results).forEach(k => scores[k] = 0);
+  shuffled = questions.map(q => ({ ...q, options: shuffle(q.options) }));
+  showPage('page-quiz');
+  renderQ();
+}
+
+function renderQ() {
+  const q = shuffled[currentQ];
+  document.getElementById('q-num').textContent = `题目 ${currentQ+1}`;
+  document.getElementById('q-badge').textContent = `Q${currentQ+1}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-illust').src = `img/${q.illust}.png`;
+  document.getElementById('progress').style.width = `${(currentQ/questions.length)*100}%`;
+
+  const c = document.getElementById('options-container');
+  c.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt.text}</span>`;
+    btn.onclick = () => pickOpt(btn, opt.type);
+    c.appendChild(btn);
+  });
+}
+
+function pickOpt(btn, type) {
+  if (btn.classList.contains('clicked')) return;
+  document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+  btn.classList.add('clicked');
+  scores[type] += 3;
+
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ >= questions.length) {
+      document.getElementById('progress').style.width = '100%';
+      showLoading();
+    } else {
+      renderQ();
+    }
+  }, 300);
+}
+
+function showLoading() {
+  document.getElementById('loading').classList.add('show');
+  setTimeout(() => {
+    document.getElementById('loading').classList.remove('show');
+    showResult();
+  }, 2000);
+}
+
+function showResult() {
+  const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+  const topType = sorted[0][0], topScore = sorted[0][1];
+  const total = Object.values(scores).reduce((a,b) => a+b, 0);
+  const pct = Math.min(99, Math.round((topScore/total)*100*2.2));
+
+  const r = results[topType];
+  document.getElementById('r-match').textContent = `${pct}% 匹配`;
+  document.getElementById('r-illust').src = r.img;
+  document.getElementById('r-name').textContent = r.name;
+  document.getElementById('r-name').style.color = r.color;
+  document.getElementById('r-tagline').textContent = r.tagline;
+
+  const traitsEl = document.getElementById('r-traits');
+  traitsEl.innerHTML = '';
+  r.traits.forEach(t => { traitsEl.innerHTML += `<span>${t}</span>`; });
+
+  document.getElementById('r-desc').textContent = r.description;
+
+  // Share card
+  document.getElementById('sc-illust').src = r.img;
+  document.getElementById('sc-name').textContent = r.name;
+  document.getElementById('sc-name').style.color = r.color;
+  document.getElementById('sc-tagline').textContent = r.tagline;
+  document.getElementById('sc-desc').textContent = r.description;
+
+  // Similar
+  const grid = document.getElementById('sim-grid');
+  grid.innerHTML = '';
+  r.similar.forEach((st, i) => {
+    const sr = results[st];
+    const sScore = scores[st] || 0;
+    const sPct = Math.max(30, Math.round((sScore/total)*100*1.8));
+    grid.innerHTML += `
+      <div class="sim-card">
+        <div class="sim-rank">Top ${i+2}</div>
+        <img src="${sr.img}" style="width:60px;height:60px;object-fit:contain">
+        <div class="s-name">${sr.name}</div>
+        <div class="s-pct" style="background:${sr.color}22;color:${sr.color}">${sPct}% 相似</div>
+      </div>`;
+  });
+
+  showPage('page-result');
+}
+
+function saveShareImage() {
+  const wrap = document.getElementById('share-card-wrap');
+  wrap.style.display = 'block';
+  setTimeout(() => {
+    const card = document.getElementById('share-card');
+    html2canvas(card, {
+      scale: 2, useCORS: true, backgroundColor: '#FFF8E7',
+      logging: false
+    }).then(canvas => {
+      // Try to download
+      const link = document.createElement('a');
+      link.download = 'BBTI_我的球场类型.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      toast('图片已保存 📸');
+    }).catch(() => {
+      toast('长按上方卡片可截图保存 📸');
+    });
+  }, 300);
+}
+
+function shareText() {
+  const name = document.getElementById('r-name').textContent;
+  const tag = document.getElementById('r-tagline').textContent;
+  const text = `我在 BBTI 羽球鸟类型测试中是【${name}】— ${tag}！来测测你是哪种球友 🏸🐥`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => toast('已复制到剪贴板 ✅'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('已复制到剪贴板 ✅');
+  }
+}
+
+function restart() { startQuiz(); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Floating feathers
+(function() {
+  const items = ['🏸','🪶','⭐','✨','💫'];
+  for (let i = 0; i < 6; i++) {
+    const el = document.createElement('div');
+    el.className = 'feather';
+    el.textContent = items[Math.floor(Math.random()*items.length)];
+    el.style.left = Math.random()*100+'%';
+    el.style.fontSize = (14+Math.random()*10)+'px';
+    el.style.animationDuration = (10+Math.random()*15)+'s';
+    el.style.animationDelay = (Math.random()*8)+'s';
+    document.body.appendChild(el);
+  }
+})();
+</script>
+</body>
+</html>
